@@ -51,14 +51,17 @@ let arbre_possible (l : int list) : holly_tree =
 let rec nettoyage (prec : noeud) (cour : holly_tree) (n : int) : holly_tree =
   match cour with
   | [] -> []
-  | {c = a ; f = b; suiv = []}::l' ->
-     (if (n = 0) then
+  | {c = a ; f = b; suiv = []}::l' -> (
+     (if (n <> 0) then
 	{c = a ; f = b; suiv = []}::(nettoyage prec (List.tl cour) n)
       else
 	(nettoyage prec (List.tl cour) n)
      )
+  )
   | {c = a ; f = b; suiv = s}::l' ->
-     {c = a ; f = b; suiv = (nettoyage {c = a ; f = b; suiv = s} s (n - 1))}::(nettoyage prec (List.tl cour) n)
+     let suiv = (nettoyage prec (List.tl cour) n) in
+     let dessous = (nettoyage {c = a ; f = b; suiv = s} s (n - 1)) in
+     {c = a ; f = b; suiv = dessous }::suiv
 ;;
 
 let rec nettoyer_arbre (abr : holly_tree) (n : int)  : holly_tree =
@@ -69,27 +72,43 @@ let rec nettoyer_arbre (abr : holly_tree) (n : int)  : holly_tree =
 ;;
     
 
-let rec alea (abr : holly_tree) (res : int list) (n : int) =
+let rec alea (abr : holly_tree) (res : int list) (n : int) : int list=
+
+  Random.self_init ();
   match abr with
   | [] -> List.rev res
-  | [a] -> (List.rev (a.c::res))
-  | a::abr' ->
+  | [a] -> alea a.suiv (a.c::res) (Random.int ((List.length a.suiv) + 1) )
+  | a::abr' -> (
+    let length = List.length a.suiv + 1 in         
      (if n < 1 then
-	(alea a.suiv (a.c::res) (Random.int (List.length a.suiv - 1)))
+	(
+	  (alea a.suiv (a.c::res) (Random.int length )
+	  )
+	)
       else
-	(alea abr' res (n - 1))
+	(
+	  (alea abr' res (n - 1))
+	)
      )
+  )
 ;;
 		
-  
-let chant_alea (list : int list) : int list =  
-(*  let abr = (nettoyer_arbre (arbre_possible list) ((List.length list) -1) ) in
- *)
-  let abr = arbre_possible list in
-  (alea abr [] (List.length abr))
+    
+let rec affiche_list l =
+  match l  with
+  |[] -> Printf.printf "\n"
+  | a::l' -> (
+    Printf.printf "%d " a;
+    affiche_list l'
+  )
 ;;
 
-  chant_alea [0;3;0];;
-
-
   
+let chant_alea (l : int list) : int list =
+  Random.self_init ();
+  let length = (List.length l) in
+  let abr = (nettoyer_arbre (arbre_possible l) length ) in
+  alea abr [] (Random.int length)
+;;
+
+affiche_list (chant_alea [0;3;5;3]);;
