@@ -111,4 +111,5 @@ let chant_alea (l : int list) : int list =
   alea abr [] (Random.int length)
 ;;
 
-affiche_list (chant_alea [0;3;5;3]);;
+(*affiche_list (chant_alea [0;3;5;3]);;
+ *)
