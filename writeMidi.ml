@@ -23,21 +23,22 @@ module WriteMidi :
       | 9 -> 77 
       | 10 -> 79 
       | 11 -> 81 
-      | _  -> raise ( ListeIncorrecte ("prout\n"))
+      | _  -> raise ( ListeIncorrecte ("LISTEINCORRECTE\n"))
     ;;
 
     let rec convert cantus contre time res =
       match cantus, contre with
       | [], [] -> (List.rev res)
       | a::l',b::m' ->
-	 convert l' m' (time + 200) ( (time,0,MIDI.NoteON (midi_from_map(a), 127))::(time,0,MIDI.NoteON (midi_from_map(b), 127))::(time,0,MIDI.NoteOFF (midi_from_map(a), 0))::(time,0,MIDI.NoteOFF (midi_from_map(b), 0))::res )
-      | _,_ -> raise ( ListeIncorrecte ("prout\n"))
+	 convert l' m' (time + 2) ( (0,0,MIDI.NoteON (midi_from_map(a), 127))::(0,1,MIDI.NoteON (midi_from_map(b), 127))::(2,0,MIDI.NoteOFF (midi_from_map(a), 0))::(0,1,MIDI.NoteOFF (midi_from_map(b), 0))::res )
+      | _,_ -> raise ( ListeIncorrecte ("LISTE Incorrecte\n"))
     ;;
     
     let ecrire_partition cantus contre nomf  =
       let struc_midi = (convert cantus contre 0 []) in 
-      MIDI.write (0,(struc_midi::[])) nomf 
+      MIDI.write (1,(struc_midi::[])) nomf 
     ;;
 
   end;;
+
 
